@@ -89,10 +89,11 @@ contains
   !call hot_start(phi,hotphi)
   call cold_start(phi)
   dphi=0.5_dp+0.1_dp*(m0)
+
   do i=1,thermalization
-    !50 sweeps for L=8, 500 sweeps for L=64
     !call metropolis(m0,phi)
-    call montecarlo(m0,dphi,phi,AR)
+    !call montecarlo(m0,dphi,phi,AR)
+    call montecarlopbc(m0,dphi,phi,AR)
     if( mod(i,100)==0) then
       write(10,*) i, S(m0,phi)/real(Lt*Lx,dp)
     end if
@@ -104,7 +105,8 @@ contains
     phi_xave=0._dp
     do j=1,Nmsrs
       do k1=1,eachsweep
-        call montecarlo(m0,dphi,phi,AR)
+        !call montecarlo(m0,dphi,phi,AR)
+        call montecarlopbc(m0,dphi,phi,AR)
       end do
       ARp(i)=ARp(i)+AR
       do k1=1,Lt
@@ -119,7 +121,7 @@ contains
   write(*,*) 'Acc. Rate=', AR_ave, AR_err
   do i=1,Lt
     call mean_scalar(phi_ave(:,i),phi_res(i),phi_err(i))
-    write(20,*) at*real(i-1,dp),phi_res(i),phi_err(i)
+    write(20,*) at*real(i,dp),phi_res(i),phi_err(i)
   end do
   close(10)
   close(20)
@@ -143,7 +145,7 @@ contains
     write(*,*) k2
     !Initializations
     m0=mi+(mf-mi)*real(k2-1,dp)/real(Nps-1,dp)
-    dphi=0.5_dp+0.1*m0
+    dphi=0.5_dp+0.01*m0
     allocate(phi(Lt+1,Lx))
     allocate(phi_xave(Lt))
     allocate(phi_ave(Nmsrs2,Lt))
@@ -152,7 +154,8 @@ contains
     
     !Thermalization
     do i=1,thermalization
-      call montecarlo(m0,dphi,phi,AR)
+      !call montecarlo(m0,dphi,phi,AR)
+      call montecarlopbc(m0,dphi,phi,AR)
       !call metropolis(m0,phi)
       !call flip_sign(phi,j)
     end do
@@ -162,7 +165,8 @@ contains
       phi_xave=0._dp
       do j=1,Nmsrs
         do k1=1,eachsweep
-          call montecarlo(m0,dphi,phi,AR)
+          !call montecarlo(m0,dphi,phi,AR)
+          call montecarlopbc(m0,dphi,phi,AR)
         end do
         ARp(i)=ARp(i)+AR
         do k1=1,Lt

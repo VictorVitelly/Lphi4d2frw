@@ -3,6 +3,7 @@ module arrays
     implicit none
 
     real(dp), allocatable :: phi(:,:)
+    integer(i4),dimension(:),allocatable :: ipx,imx,ipt,imt
 
 contains
 

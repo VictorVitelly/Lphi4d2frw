@@ -83,6 +83,34 @@ contains
     end do
     AR=AR/real(Lx*(Lt+1),dp)
   end subroutine montecarlo
+
+  subroutine montecarlopbc(m0,dphi,phi,AR)
+    real(dp), intent(in) :: m0,dphi
+    real(dp), dimension(Lt+1,Lx), intent(inout) :: phi
+    real(dp),intent(out) :: AR
+    real(dp) :: deltaphi,phi2,DS,r,p
+    integer(i4) :: i1,i2
+    AR=0._dp
+    do i1=1,Lt
+      do i2=1,Lx
+        call random_phi(deltaphi,dphi)
+        phi2=phi(i1,i2)+deltaphi
+        DS=DeltaSpbc(m0,phi,i1,i2,phi2)
+        if(DS .le. 0._dp) then
+          phi(i1,i2)=phi2
+          AR=AR+1._dp
+        else
+          call random_number(r)
+          p=Exp(-DS)
+          AR=AR+p
+          if(r < p ) then
+            phi(i1,i2)=phi2
+          end if
+        end if
+      end do
+    end do
+    AR=AR/real(Lx*Lt,dp)
+  end subroutine montecarlopbc
   
   subroutine flip_sign(phi,i)
     real(dp), dimension(Lt+1,Lx), intent(inout) :: phi

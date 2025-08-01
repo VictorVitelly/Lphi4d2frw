@@ -5,24 +5,36 @@ module functions
 
 contains
 
-  function iv(i)
+  function ivx(i)
     integer(i4), intent(in) :: i
-    integer(i4) :: iv
+    integer(i4) :: ivx
     if(i==Lx+1) then
-      iv=1
+      ivx=1
     else if(i==0) then
-      iv=Lx
+      ivx=Lx
     else
-      iv=i
+      ivx=i
     end if
-  end function iv
+  end function ivx
+
+  function ivt(i)
+    integer(i4), intent(in) :: i
+    integer(i4) :: ivt
+    if(i==Lt+1) then
+      ivt=1
+    else if(i==0) then
+      ivt=Lt
+    else
+      ivt=i
+    end if
+  end function ivt
   
   function alfa(t)
     integer(i4),intent(in) :: t
     real(dp) :: alfa
     !alfa=1._dp+at*real(t-1,dp)
     alfa=1._dp
-    !alfa=at*real(t,dp)
+    !alfa=at*real(t-1,dp)
   end function alfa
 
   function lagrangian(m02,phi,i1,i2)
@@ -32,7 +44,7 @@ contains
     real(dp) :: lagrangian
     real(dp) :: laga,lagb,lagc
     laga=(phi(i1+1,i2)-phi(i1,i2) )**2 /at**2
-    lagb=(phi(i1,iv(i2+1))-phi(i1,i2) )**2 /ax**2
+    lagb=(phi(i1,ivx(i2+1))-phi(i1,i2) )**2 /ax**2
     lagc=alfa(i1)**2 *(m02*phi(i1,i2)**2+0.5_dp*lambda0*phi(i1,i2)**4)
     lagrangian=(laga+lagb+lagc)/2._dp
   end function lagrangian
@@ -65,7 +77,7 @@ contains
     else 
       DSa=(phi2**2-phi(i1,i2)**2)*(1._dp/at**2+1._dp/ax**2)
       DSb=-(phi2-phi(i1,i2))*(phi(i1+1,i2) +phi(i1-1,i2))/at**2 
-      DSc=-(phi2-phi(i1,i2))*(phi(i1,iv(i2+1)) +phi(i1,iv(i2-1)))/ax**2
+      DSc=-(phi2-phi(i1,i2))*(phi(i1,ivx(i2+1)) +phi(i1,ivx(i2-1)))/ax**2
       DSd=alfa(i1)**2 *(m02*(phi2**2-phi(i1,i2)**2)&
           &+lambda0*(phi2**4-phi(i1,i2)**4)/2._dp)/2._dp
       DeltaS=at*ax*(DSa+DSb+DSc+DSd)
@@ -82,38 +94,41 @@ contains
     If(i1==Lt+1) then 
       DSa=(phi2**2-phi(i1,i2)**2)*(1._dp/at**2+1._dp/ax**2)
       DSb=-(phi2-phi(i1,i2))*2.*phi(i1-1,i2)/at**2 
-      DSc=-(phi2-phi(i1,i2))*(phi(i1,iv(i2+1)) +phi(i1,iv(i2-1)))/ax**2
+      DSc=-(phi2-phi(i1,i2))*(phi(i1,ivx(i2+1)) +phi(i1,ivx(i2-1)))/ax**2
       DSd=alfa(i1)**2 *(m02*(phi2**2-phi(i1,i2)**2)&
           &+lambda0*(phi2**4-phi(i1,i2)**4)/2._dp)/2._dp
       DeltaSvbc=at*ax*(DSa+DSb+DSc+DSd)
     else if (i1==1) then 
       DSa=(phi2**2-phi(i1,i2)**2)*(1._dp/at**2+1._dp/ax**2)
       DSb=-(phi2-phi(i1,i2))*(phi(i1+1,i2) )/at**2 
-      DSc=-(phi2-phi(i1,i2))*(phi(i1,iv(i2+1)) +phi(i1,iv(i2-1)))/ax**2
+      DSc=-(phi2-phi(i1,i2))*(phi(i1,ivx(i2+1)) +phi(i1,ivx(i2-1)))/ax**2
       DSd=alfa(i1)**2 *(m02*(phi2**2-phi(i1,i2)**2)&
           &+lambda0*(phi2**4-phi(i1,i2)**4)/2._dp)/2._dp
       DeltaSvbc=at*ax*(DSa+DSb+DSc+DSd)
     else 
       DSa=(phi2**2-phi(i1,i2)**2)*(1._dp/at**2+1._dp/ax**2)
       DSb=-(phi2-phi(i1,i2))*(phi(i1+1,i2) +phi(i1-1,i2))/at**2 
-      DSc=-(phi2-phi(i1,i2))*(phi(i1,iv(i2+1)) +phi(i1,iv(i2-1)))/ax**2
+      DSc=-(phi2-phi(i1,i2))*(phi(i1,ivx(i2+1)) +phi(i1,ivx(i2-1)))/ax**2
       DSd=alfa(i1)**2 *(m02*(phi2**2-phi(i1,i2)**2)&
           &+lambda0*(phi2**4-phi(i1,i2)**4)/2._dp)/2._dp
       DeltaSvbc=at*ax*(DSa+DSb+DSc+DSd)
     end if
   end function DeltaSvbc
 
-  function DeltaS2(m02,phi,i1,i2,phi2)
+  function DeltaSpbc(m02,phi,i1,i2,phi2)
     real(dp), intent(in) :: m02
     real(dp), dimension(Lt+1,Lx), intent(in) :: phi
-    real(dp), dimension(Lt+1,Lx) :: phi_y
     integer(i4), intent(in) :: i1,i2
     real(dp), intent(in) :: phi2
-    real(dp) :: DeltaS2
-    phi_y=phi
-    phi_y(i1,i2)=phi2
-    DeltaS2=S(m02,phi_y)-S(m02,phi)
-  end function DeltaS2
+    real(dp) :: DeltaSpbc
+    real(dp) :: DSa,DSb,DSc,DSd
+      DSa=(phi2**2-phi(i1,i2)**2)*(1._dp/at**2+1._dp/ax**2)
+      DSb=-(phi2-phi(i1,i2))*(phi(ivt(i1+1),i2) +phi(ivt(i1-1),i2))/at**2
+      DSc=-(phi2-phi(i1,i2))*(phi(i1,ivx(i2+1)) +phi(i1,ivx(i2-1)))/ax**2
+      DSd=alfa(i1)**2 *(m02*(phi2**2-phi(i1,i2)**2)&
+          &+lambda0*(phi2**4-phi(i1,i2)**4)/2._dp)/2._dp
+      DeltaSpbc=at*ax*(DSa+DSb+DSc+DSd)
+  end function DeltaSpbc
 
   function meanphi(phi)
     real(dp), dimension(Lt+1,Lx), intent(in) :: phi
