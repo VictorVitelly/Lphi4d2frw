@@ -145,7 +145,7 @@ contains
     write(*,*) k2
     !Initializations
     m0=mi+(mf-mi)*real(k2-1,dp)/real(Nps-1,dp)
-    dphi=0.5_dp+0.01*m0
+    dphi=0.5_dp+0.2*m0
     allocate(phi(Lt+1,Lx))
     allocate(phi_xave(Lt))
     allocate(phi_ave(Nmsrs2,Lt))
@@ -154,8 +154,8 @@ contains
     
     !Thermalization
     do i=1,thermalization
-      !call montecarlo(m0,dphi,phi,AR)
-      call montecarlopbc(m0,dphi,phi,AR)
+      call montecarlo(m0,dphi,phi,AR)
+      !call montecarlopbc(m0,dphi,phi,AR)
       !call metropolis(m0,phi)
       !call flip_sign(phi,j)
     end do
@@ -165,8 +165,8 @@ contains
       phi_xave=0._dp
       do j=1,Nmsrs
         do k1=1,eachsweep
-          !call montecarlo(m0,dphi,phi,AR)
-          call montecarlopbc(m0,dphi,phi,AR)
+          call montecarlo(m0,dphi,phi,AR)
+          !call montecarlopbc(m0,dphi,phi,AR)
         end do
         ARp(i)=ARp(i)+AR
         do k1=1,Lt

@@ -40,8 +40,8 @@ contains
       do i2=1,Lx
         call random_phi(deltaphi,dphi_m)
         phi2=phi(i1,i2)+deltaphi
-        !DS=DeltaS(m0,phi,i1,i2,phi2)
-        DS=DeltaSvbc(m0,phi,i1,i2,phi2)
+        DS=DeltaSebc(m0,phi,i1,i2,phi2)
+        !DS=DeltaSvbc(m0,phi,i1,i2,phi2)
         if(DS .le. 0._dp) then
           phi(i1,i2)=phi2
         else
@@ -66,8 +66,8 @@ contains
       do i2=1,Lx
         call random_phi(deltaphi,dphi)
         phi2=phi(i1,i2)+deltaphi
-        !DS=DeltaS(m0,phi,i1,i2,phi2)
-        DS=DeltaSvbc(m0,phi,i1,i2,phi2)
+        DS=DeltaSebc(m0,phi,i1,i2,phi2)
+        !DS=DeltaSvbc(m0,phi,i1,i2,phi2)
         if(DS .le. 0._dp) then
           phi(i1,i2)=phi2
           AR=AR+1._dp
