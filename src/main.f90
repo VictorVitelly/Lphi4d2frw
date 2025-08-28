@@ -88,7 +88,7 @@ contains
   allocate(phi_err(Lt))
   !call hot_start(phi,hotphi)
   call cold_start(phi)
-  dphi=0.5_dp+0.1_dp*(m0)
+  dphi=0.65_dp!+0.1_dp*(m0)
 
   do i=1,thermalization
     !call metropolis(m0,phi)
@@ -145,7 +145,7 @@ contains
     write(*,*) k2
     !Initializations
     m0=mi+(mf-mi)*real(k2-1,dp)/real(Nps-1,dp)
-    dphi=0.5_dp+0.2*m0
+    dphi=0.65_dp!+0.2*m0
     allocate(phi(Lt+1,Lx))
     allocate(phi_xave(Lt))
     allocate(phi_ave(Nmsrs2,Lt))
@@ -154,8 +154,8 @@ contains
     
     !Thermalization
     do i=1,thermalization
-      call montecarlo(m0,dphi,phi,AR)
-      !call montecarlopbc(m0,dphi,phi,AR)
+      !call montecarlo(m0,dphi,phi,AR)
+      call montecarlopbc(m0,dphi,phi,AR)
       !call metropolis(m0,phi)
       !call flip_sign(phi,j)
     end do
@@ -165,8 +165,8 @@ contains
       phi_xave=0._dp
       do j=1,Nmsrs
         do k1=1,eachsweep
-          call montecarlo(m0,dphi,phi,AR)
-          !call montecarlopbc(m0,dphi,phi,AR)
+          !call montecarlo(m0,dphi,phi,AR)
+          call montecarlopbc(m0,dphi,phi,AR)
         end do
         ARp(i)=ARp(i)+AR
         do k1=1,Lt
@@ -184,10 +184,10 @@ contains
       call mean_scalar(phi_ave(:,i),phi_res(k2,i),phi_err(k2,i))
     end do
     write(30,*) m0, phi_res(k2,1), phi_err(k2,1), phi_res(k2,4), phi_err(k2,4), &
-                &phi_res(k2,8), phi_err(k2,8), phi_res(k2,12), phi_err(k2,12), &
-                &phi_res(k2,16), phi_err(k2,16), phi_res(k2,20), phi_err(k2,20), &
-                &phi_res(k2,24), phi_err(k2,24), phi_res(k2,28), phi_err(k2,28), &
-                &phi_res(k2,32), phi_err(k2,32)
+                &phi_res(k2,8), phi_err(k2,8)!, phi_res(k2,12), phi_err(k2,12), &
+                !&phi_res(k2,16), phi_err(k2,16), phi_res(k2,20), phi_err(k2,20), &
+                !&phi_res(k2,24), phi_err(k2,24), phi_res(k2,28), phi_err(k2,28), &
+                !&phi_res(k2,32), phi_err(k2,32)
     write(*,*) 'The acc. rate for m02=', m0, 'is', AR_ave, '+-', AR_err
     deallocate(phi,phi_xave,phi_ave)
   end do
