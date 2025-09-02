@@ -3,9 +3,9 @@ module parameters
     use iso_fortran_env, only : dp => real64, i4 => int32
     implicit none
 
-    integer(i4), parameter :: Lt=10,Lx=10
-    real(dp), parameter :: PI=4._dp*DATAN(1._dp),tau=2*PI
-    real(dp) :: lambda0=1._dp,at=tau/real(Lt,dp),ax=tau/real(Lt,dp)
+    integer(i4), parameter :: Lt=20,Lx=16
+    real(dp), parameter :: PI=4._dp*DATAN(1._dp),tau=2*PI,x=1._dp
+    real(dp) :: lambda0=1._dp,at=tau/real(Lt,dp),ax=x/real(Lx,dp)
     
     integer(i4), parameter :: thermalization=10000,Nmsrs=200,eachsweep=500,Nmsrs2=120
     integer(i4) :: sweeps=thermalization+eachsweep*Nmsrs

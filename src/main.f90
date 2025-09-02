@@ -145,7 +145,7 @@ contains
     write(*,*) k2
     !Initializations
     m0=mi+(mf-mi)*real(k2-1,dp)/real(Nps-1,dp)
-    dphi=0.65_dp!+0.2*m0
+    dphi=0.4_dp!+0.2*m0
     allocate(phi(Lt+1,Lx))
     allocate(phi_xave(Lt))
     allocate(phi_ave(Nmsrs2,Lt))
@@ -184,8 +184,8 @@ contains
       call mean_scalar(phi_ave(:,i),phi_res(k2,i),phi_err(k2,i))
     end do
     write(30,*) m0, phi_res(k2,1), phi_err(k2,1), phi_res(k2,4), phi_err(k2,4), &
-                &phi_res(k2,8), phi_err(k2,8)!, phi_res(k2,12), phi_err(k2,12), &
-                !&phi_res(k2,16), phi_err(k2,16), phi_res(k2,20), phi_err(k2,20), &
+                &phi_res(k2,8), phi_err(k2,8), phi_res(k2,12), phi_err(k2,12), &
+                &phi_res(k2,16), phi_err(k2,16), phi_res(k2,20), phi_err(k2,20)!, &
                 !&phi_res(k2,24), phi_err(k2,24), phi_res(k2,28), phi_err(k2,28), &
                 !&phi_res(k2,32), phi_err(k2,32)
     write(*,*) 'The acc. rate for m02=', m0, 'is', AR_ave, '+-', AR_err

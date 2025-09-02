@@ -35,7 +35,7 @@ contains
     !alfa=1._dp+at*real(t-1,dp)
     !alfa=1._dp
     !alfa=at*real(t-1,dp)
-    alfa=sin(at*real(t,dp))
+    alfa=sin(at*real(t-1,dp))
   end function alfa
 
   function lagrangian(m02,phi,i1,i2)
