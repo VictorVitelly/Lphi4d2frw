@@ -20,10 +20,8 @@ contains
   function ivt(i)
     integer(i4), intent(in) :: i
     integer(i4) :: ivt
-    if(i==Lt+1) then
-      ivt=1
-    else if(i==0) then
-      ivt=Lt
+    if(i==0) then
+      ivt=Lt+1
     else
       ivt=i
     end if
@@ -32,10 +30,9 @@ contains
   function alfa(t)
     integer(i4),intent(in) :: t
     real(dp) :: alfa
-    !alfa=1._dp+at*real(t-1,dp)
     !alfa=1._dp
-    !alfa=at*real(t-1,dp)
-    alfa=sin(at*real(t-1,dp))
+    alfa=exp(0.1_dp*t)
+    !alfa=sin(at*real(t-1,dp))
   end function alfa
 
   function lagrangian(m02,phi,i1,i2)
@@ -64,64 +61,113 @@ contains
     S=at*ax*S
   end function S
 
-  function DeltaSebc(m02,phi,i1,i2,phi2)
+  function DeltaSdbc(m02,phi,i1,i2,phi2)
     real(dp), intent(in) :: m02
     real(dp), dimension(Lt+1,Lx), intent(in) :: phi
     integer(i4), intent(in) :: i1,i2
     real(dp), intent(in) :: phi2
-    real(dp) :: DeltaSebc
+    real(dp) :: DeltaSdbc
     real(dp) :: DSa,DSb,DSc,DSd
-    If(i1==Lt+1) then 
-      DSa=phi2**2-phi(Lt+1,i2)**2
-      DSb=-2._dp*phi(Lt,i2)*(phi2-phi(Lt+1,i2))
-      DeltaSebc=ax*(DSa+Dsb)/(2._dp*at)
-    else if(i1==1) then 
+      DSa=(phi2**2-phi(i1,i2)**2)*(1._dp/at**2+1._dp/ax**2)
+      DSb=-(phi2-phi(i1,i2))*(phi(ivt(i1+1),i2) +phi(ivt(i1-1),i2))/at**2 
+      DSc=-(phi2-phi(i1,i2))*(phi(i1,ivx(i2+1)) +phi(i1,ivx(i2-1)))/ax**2
+      DSd=alfa(i1)**2 *(m02*(phi2**2-phi(i1,i2)**2)&
+          &+lambda0*(phi2**4-phi(i1,i2)**4)/2._dp)/2._dp
+      DeltaSdbc=at*ax*(DSa+DSb+DSc+DSd)
+  end function DeltaSdbc
+  
+  function DeltaSgbc(m02,phi,i1,i2,phi2)
+    real(dp), intent(in) :: m02
+    real(dp), dimension(Lt+1,Lx), intent(in) :: phi
+    integer(i4), intent(in) :: i1,i2
+    real(dp), intent(in) :: phi2
+    real(dp) :: DeltaSgbc
+    real(dp) :: DSa,DSb,DSc,DSd
+    If(i1==Lt) then 
+      DSa=(phi2**2-phi(i1,i2)**2)*(1.0_dp/at**2+1._dp/ax**2)
+      DSb=-2._dp*(phi2-phi(i1,i2))*(phi(i1-1,i2))/at**2 
+      DSc=-(phi2-phi(i1,i2))*(phi(i1,ivx(i2+1)) +phi(i1,ivx(i2-1)))/ax**2
+      DSd=alfa(i1)**2 *(m02*(phi2**2-phi(i1,i2)**2)&
+          &+lambda0*(phi2**4-phi(i1,i2)**4)/2._dp)/2._dp
+      DeltaSgbc=at*ax*(DSa+DSb+DSc+DSd)
+    else if (i1==1) then 
+      DSa=(phi2**2-phi(i1,i2)**2)*(1.0_dp/at**2+1._dp/ax**2)
+      DSb=-2._dp*(phi2-phi(i1,i2))*(phi(i1+1,i2) )/at**2 
+      DSc=-(phi2-phi(i1,i2))*(phi(i1,ivx(i2+1)) +phi(i1,ivx(i2-1)))/ax**2
+      DSd=alfa(i1)**2 *(m02*(phi2**2-phi(i1,i2)**2)&
+          &+lambda0*(phi2**4-phi(i1,i2)**4)/2._dp)/2._dp
+      DeltaSgbc=at*ax*(DSa+DSb+DSc+DSd)
+    else 
+      DSa=(phi2**2-phi(i1,i2)**2)*(1._dp/at**2+1._dp/ax**2)
+      DSb=-(phi2-phi(i1,i2))*(phi(i1+1,i2) +phi(i1-1,i2))/at**2 
+      DSc=-(phi2-phi(i1,i2))*(phi(i1,ivx(i2+1)) +phi(i1,ivx(i2-1)))/ax**2
+      DSd=alfa(i1)**2 *(m02*(phi2**2-phi(i1,i2)**2)&
+          &+lambda0*(phi2**4-phi(i1,i2)**4)/2._dp)/2._dp
+      DeltaSgbc=at*ax*(DSa+DSb+DSc+DSd)
+    end if
+  end function DeltaSgbc
+  
+  function DeltaSfbc(m02,phi,i1,i2,phi2)
+    real(dp), intent(in) :: m02
+    real(dp), dimension(Lt+1,Lx), intent(in) :: phi
+    integer(i4), intent(in) :: i1,i2
+    real(dp), intent(in) :: phi2
+    real(dp) :: DeltaSfbc
+    real(dp) :: DSa,DSb,DSc,DSd
+    If(i1==Lt) then 
+      DSa=(phi2**2-phi(i1,i2)**2)*(0.5_dp/at**2+1._dp/ax**2)
+      DSb=-(phi2-phi(i1,i2))*(phi(i1-1,i2))/at**2 
+      DSc=-(phi2-phi(i1,i2))*(phi(i1,ivx(i2+1)) +phi(i1,ivx(i2-1)))/ax**2
+      DSd=alfa(i1)**2 *(m02*(phi2**2-phi(i1,i2)**2)&
+          &+lambda0*(phi2**4-phi(i1,i2)**4)/2._dp)/2._dp
+      DeltaSfbc=at*ax*(DSa+DSb+DSc+DSd)
+    else if (i1==1) then 
       DSa=(phi2**2-phi(i1,i2)**2)*(0.5_dp/at**2+1._dp/ax**2)
       DSb=-(phi2-phi(i1,i2))*(phi(i1+1,i2) )/at**2 
       DSc=-(phi2-phi(i1,i2))*(phi(i1,ivx(i2+1)) +phi(i1,ivx(i2-1)))/ax**2
       DSd=alfa(i1)**2 *(m02*(phi2**2-phi(i1,i2)**2)&
           &+lambda0*(phi2**4-phi(i1,i2)**4)/2._dp)/2._dp
-      DeltaSebc=at*ax*(DSa+DSb+DSc+DSd)
+      DeltaSfbc=at*ax*(DSa+DSb+DSc+DSd)
     else 
       DSa=(phi2**2-phi(i1,i2)**2)*(1._dp/at**2+1._dp/ax**2)
       DSb=-(phi2-phi(i1,i2))*(phi(i1+1,i2) +phi(i1-1,i2))/at**2 
       DSc=-(phi2-phi(i1,i2))*(phi(i1,ivx(i2+1)) +phi(i1,ivx(i2-1)))/ax**2
       DSd=alfa(i1)**2 *(m02*(phi2**2-phi(i1,i2)**2)&
           &+lambda0*(phi2**4-phi(i1,i2)**4)/2._dp)/2._dp
-      DeltaSebc=at*ax*(DSa+DSb+DSc+DSd)
+      DeltaSfbc=at*ax*(DSa+DSb+DSc+DSd)
     end if
-  end function DeltaSebc
+  end function DeltaSfbc
   
-  function DeltaSvbc(m02,phi,i1,i2,phi2)
+  function DeltaSrbc(m02,phi,i1,i2,phi2)
     real(dp), intent(in) :: m02
     real(dp), dimension(Lt+1,Lx), intent(in) :: phi
     integer(i4), intent(in) :: i1,i2
     real(dp), intent(in) :: phi2
-    real(dp) :: DeltaSvbc
+    real(dp) :: DeltaSrbc
     real(dp) :: DSa,DSb,DSc,DSd
-    If(i1==Lt+1) then 
-      DSa=(phi2**2-phi(i1,i2)**2)*(1._dp/at**2+1._dp/ax**2)
-      DSb=-(phi2-phi(i1,i2))*2.*phi(i1-1,i2)/at**2 
-      DSc=-(phi2-phi(i1,i2))*(phi(i1,ivx(i2+1)) +phi(i1,ivx(i2-1)))/ax**2
+    If(i1==Lt) then 
+      DSa=(phi(Lt,i2)-phi2)**2 /(2._dp*at**2)
+      DSb=(phi2-phi(Lt-1,i2))**2 /(2._dp*at**2)
+      DSc=-(phi(Lt,i2)-phi(Lt-1,i2))**2 /(2._dp*at**2)
       DSd=alfa(i1)**2 *(m02*(phi2**2-phi(i1,i2)**2)&
           &+lambda0*(phi2**4-phi(i1,i2)**4)/2._dp)/2._dp
-      DeltaSvbc=at*ax*(DSa+DSb+DSc+DSd)
+      DeltaSrbc=at*ax*(DSa+DSb+DSc+DSd)
     else if (i1==1) then 
-      DSa=(phi2**2-phi(i1,i2)**2)*(1._dp/at**2+1._dp/ax**2)
-      DSb=-(phi2-phi(i1,i2))*(phi(i1+1,i2) )/at**2 
-      DSc=-(phi2-phi(i1,i2))*(phi(i1,ivx(i2+1)) +phi(i1,ivx(i2-1)))/ax**2
+      DSa=(phi(2,i2)-phi2)**2 /(2._dp*at**2)
+      DSb=(phi2-phi(1,i2))**2 /(2._dp*at**2)
+      DSc=-(phi(2,i2)-phi(1,i2))**2 /(2._dp*at**2)
       DSd=alfa(i1)**2 *(m02*(phi2**2-phi(i1,i2)**2)&
           &+lambda0*(phi2**4-phi(i1,i2)**4)/2._dp)/2._dp
-      DeltaSvbc=at*ax*(DSa+DSb+DSc+DSd)
+      DeltaSrbc=at*ax*(DSa+DSb+DSc+DSd)
     else 
       DSa=(phi2**2-phi(i1,i2)**2)*(1._dp/at**2+1._dp/ax**2)
       DSb=-(phi2-phi(i1,i2))*(phi(i1+1,i2) +phi(i1-1,i2))/at**2 
       DSc=-(phi2-phi(i1,i2))*(phi(i1,ivx(i2+1)) +phi(i1,ivx(i2-1)))/ax**2
       DSd=alfa(i1)**2 *(m02*(phi2**2-phi(i1,i2)**2)&
           &+lambda0*(phi2**4-phi(i1,i2)**4)/2._dp)/2._dp
-      DeltaSvbc=at*ax*(DSa+DSb+DSc+DSd)
+      DeltaSrbc=at*ax*(DSa+DSb+DSc+DSd)
     end if
-  end function DeltaSvbc
+  end function DeltaSrbc
 
   function DeltaSpbc(m02,phi,i1,i2,phi2)
     real(dp), intent(in) :: m02
@@ -130,10 +176,10 @@ contains
     real(dp), intent(in) :: phi2
     real(dp) :: DeltaSpbc
     real(dp) :: DSa,DSb,DSc,DSd
-      DSa=(phi2**2-phi(i1,i2)**2)*(1._dp/at**2+1._dp/ax**2)
-      DSb=-(phi2-phi(i1,i2))*(phi(ivt(i1+1),i2) +phi(ivt(i1-1),i2))/at**2
+      DSa=(phi2**2-phi(i1,i2)**2)*(1._dp/at**2 +1._dp/ax**2)
+      DSb=-(phi2-phi(i1,i2))*(phi(ivx(i1+1),i2) +phi(ivx(i1-1),i2))/at**2
       DSc=-(phi2-phi(i1,i2))*(phi(i1,ivx(i2+1)) +phi(i1,ivx(i2-1)))/ax**2
-      DSd=alfa(i1)**2 *(m02*(phi2**2-phi(i1,i2)**2)&
+      DSd=alfa(i1)**2 *( m02*(phi2**2-phi(i1,i2)**2) &
           &+lambda0*(phi2**4-phi(i1,i2)**4)/2._dp)/2._dp
       DeltaSpbc=at*ax*(DSa+DSb+DSc+DSd)
   end function DeltaSpbc
@@ -155,10 +201,10 @@ contains
     integer(i4), intent(in) :: t
     real(dp) :: meanphi_t
     integer(i4) :: i
+    meanphi_t=0._dp
     do i=1,Lx
       meanphi_t=meanphi_t+phi(t,i)
     end do
-    meanphi_t=abs(meanphi_t)/real(Lx,dp)
   end function meanphi_t
   
 end module functions

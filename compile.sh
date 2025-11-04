@@ -7,7 +7,7 @@ TARGET=main
 FC=gfortran
 FFLAGS="-c -J$BIN -I$BIN -Wall -Wextra -std=f2008"
 
-for file in parameters arrays functions statistics main
+for file in parameters arrays functions statistics measurements main
 do
   $FC $FFLAGS $SRC/$file.f90 -o $BIN/$file.o
 done

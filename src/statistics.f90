@@ -31,17 +31,20 @@ contains
     end do
   end subroutine hot_start
 
-  subroutine metropolis(m0,phi)
-    real(dp), intent(in) :: m0
+  subroutine metropolis(m0,dphi,phi)
+    real(dp), intent(in) :: m0,dphi
     real(dp), dimension(Lt+1,Lx), intent(inout) :: phi
     real(dp) :: deltaphi,phi2,DS,r,p
     integer(i4) :: i1,i2
-    do i1=1,Lt+1
+    do i1=1,Lt
       do i2=1,Lx
-        call random_phi(deltaphi,dphi_m)
+        call random_phi(deltaphi,dphi)
         phi2=phi(i1,i2)+deltaphi
-        DS=DeltaSebc(m0,phi,i1,i2,phi2)
-        !DS=DeltaSvbc(m0,phi,i1,i2,phi2)
+        !DS=DeltaSdbc(m0,phi,i1,i2,phi2)
+        !DS=DeltaSfbc(m0,phi,i1,i2,phi2)
+        !DS=DeltaSgbc(m0,phi,i1,i2,phi2)
+        DS=DeltaSrbc(m0,phi,i1,i2,phi2)
+        !DS=DeltaSpbc(m0,phi,i1,i2,phi2)
         if(DS .le. 0._dp) then
           phi(i1,i2)=phi2
         else
@@ -62,12 +65,15 @@ contains
     real(dp) :: deltaphi,phi2,DS,r,p
     integer(i4) :: i1,i2
     AR=0._dp
-    do i1=1,Lt+1
+    do i1=1,Lt
       do i2=1,Lx
         call random_phi(deltaphi,dphi)
         phi2=phi(i1,i2)+deltaphi
-        DS=DeltaSebc(m0,phi,i1,i2,phi2)
-        !DS=DeltaSvbc(m0,phi,i1,i2,phi2)
+        !DS=DeltaSdbc(m0,phi,i1,i2,phi2)
+        !DS=DeltaSfbc(m0,phi,i1,i2,phi2)
+        !DS=DeltaSgbc(m0,phi,i1,i2,phi2)
+        DS=DeltaSrbc(m0,phi,i1,i2,phi2)
+        !DS=DeltaSpbc(m0,phi,i1,i2,phi2)
         if(DS .le. 0._dp) then
           phi(i1,i2)=phi2
           AR=AR+1._dp
@@ -81,7 +87,7 @@ contains
         end if
       end do
     end do
-    AR=AR/real(Lx*(Lt+1),dp)
+    AR=AR/real(Lx*Lt,dp)
   end subroutine montecarlo
 
   subroutine montecarlopbc(m0,dphi,phi,AR)
@@ -112,17 +118,14 @@ contains
     AR=AR/real(Lx*Lt,dp)
   end subroutine montecarlopbc
   
-  subroutine flip_sign(phi,i)
+  subroutine flip_sign(phi)
     real(dp), dimension(Lt+1,Lx), intent(inout) :: phi
-    integer(i4), intent(in) :: i
     integer(i4) :: i1,i2
-    if(i>thermalization .and. mod(i,10)==0) then
-      do i1=1,Lt+1
+      do i1=1,Lt
         do i2=1,Lx
           phi(i1,i2)=-phi(i1,i2)
         end do
       end do
-    end if
   end subroutine flip_sign
   
   !Statistics for measurements
@@ -193,8 +196,8 @@ contains
     real(dp), dimension(:), intent(in) :: x
     real(dp), intent(out) :: y,deltay
     call mean_0(x,y)
-    !call standard_error(x,y,deltay)
-    call jackknife(x,y,deltay)
+    call standard_error(x,y,deltay)
+    !call jackknife(x,y,deltay)
   end subroutine mean_scalar
 
 end module statistics
