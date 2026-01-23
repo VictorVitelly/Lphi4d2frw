@@ -42,8 +42,8 @@ contains
         phi2=phi(i1,i2)+deltaphi
         !DS=DeltaSdbc(m0,phi,i1,i2,phi2)
         !DS=DeltaSfbc(m0,phi,i1,i2,phi2)
-        !DS=DeltaSgbc(m0,phi,i1,i2,phi2)
-        DS=DeltaSrbc(m0,phi,i1,i2,phi2)
+        DS=DeltaSgbc(m0,phi,i1,i2,phi2)
+        !DS=DeltaSrbc(m0,phi,i1,i2,phi2)
         !DS=DeltaSpbc(m0,phi,i1,i2,phi2)
         if(DS .le. 0._dp) then
           phi(i1,i2)=phi2
@@ -61,33 +61,33 @@ contains
   subroutine montecarlo(m0,dphi,phi,AR)
     real(dp), intent(in) :: m0,dphi
     real(dp), dimension(Lt+1,Lx), intent(inout) :: phi
-    real(dp),intent(out) :: AR
+    real(dp), dimension(Lt), intent(out) :: AR
     real(dp) :: deltaphi,phi2,DS,r,p
     integer(i4) :: i1,i2
     AR=0._dp
     do i1=1,Lt
       do i2=1,Lx
-        call random_phi(deltaphi,dphi)
+        call random_phi(deltaphi,dphi-0.05_dp*real(i1,dp)/16._dp)
         phi2=phi(i1,i2)+deltaphi
         !DS=DeltaSdbc(m0,phi,i1,i2,phi2)
         !DS=DeltaSfbc(m0,phi,i1,i2,phi2)
-        !DS=DeltaSgbc(m0,phi,i1,i2,phi2)
-        DS=DeltaSrbc(m0,phi,i1,i2,phi2)
+        DS=DeltaSgbc(m0,phi,i1,i2,phi2)
+        !DS=DeltaSrbc(m0,phi,i1,i2,phi2)
         !DS=DeltaSpbc(m0,phi,i1,i2,phi2)
         if(DS .le. 0._dp) then
           phi(i1,i2)=phi2
-          AR=AR+1._dp
+          AR(i1)=AR(i1)+1._dp
         else
           call random_number(r)
           p=Exp(-DS)
-          AR=AR+p
+          AR(i1)=AR(i1)+p
           if(r < p ) then
             phi(i1,i2)=phi2
           end if
         end if
       end do
     end do
-    AR=AR/real(Lx*Lt,dp)
+    AR=AR/real(Lx,dp)
   end subroutine montecarlo
 
   subroutine montecarlopbc(m0,dphi,phi,AR)
@@ -196,8 +196,8 @@ contains
     real(dp), dimension(:), intent(in) :: x
     real(dp), intent(out) :: y,deltay
     call mean_0(x,y)
-    call standard_error(x,y,deltay)
-    !call jackknife(x,y,deltay)
+    !call standard_error(x,y,deltay)
+    call jackknife(x,y,deltay)
   end subroutine mean_scalar
 
 end module statistics

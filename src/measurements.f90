@@ -7,9 +7,8 @@ module measurements
 
 contains
 
-  subroutine correlation(phi,corr1,corr2,dphi)
+  subroutine correlation(phi,corr1,corr2)
     real(dp), dimension(Lt+1,Lx), intent(in) :: phi
-    real(dp), intent(in) :: dphi
     real(dp), dimension(Lt), intent(inout) :: corr1
     real(dp), dimension(Lt,Lt), intent(inout) :: corr2
     real(dp), dimension(Lt) :: varphi
@@ -22,20 +21,19 @@ contains
       end do
     end do
     varphi(:)=varphi(:)/real(Lx,dp)
-    xx=abs(varphi(1))
+    xx=abs(meanphi(phi))/real(Lx*Lt,dp)
     do i1=1,Lt
       corr1(i1)=corr1(i1)+xx
-      do i2=1,Lt
+      do i2=1,Lx
         corr2(i1,i2)=corr2(i1,i2)+(varphi(i1)*varphi(i2))
         !corr2(i1,i2)=corr2(i1,i2)+(phi(i1,1)*phi(i2,1))
       end do
     end do
   end subroutine correlation
   
-  subroutine correlation2(phi,corr1,corr2,t,dphi)
+  subroutine correlation2(phi,corr1,corr2,t)
     real(dp), dimension(Lt+1,Lx), intent(in) :: phi
     integer(i4), intent(in) :: t
-    real(dp), intent(in) :: dphi
     real(dp), dimension(Lt), intent(inout) :: corr1
     real(dp), dimension(Lt,Lt), intent(inout) :: corr2
     real(dp) :: xx
@@ -70,12 +68,12 @@ contains
   do k=1,Nts
     CF(:,:)=0._dp
     x0=mi+(mf-mi)*real(k-1,dp)/real(Nts-1,dp)
-    dphi=0.45_dp +x0/30._dp
+    !dphi=0.45_dp +x0/30._dp
+    dphi=0.5_dp
     !x0=lambi+(lambf-lambi)*real(k-1,dp)/real(Nts-1,dp)
     write(*,*) x0
     call cold_start(phi)
     do j=1,2*thermalization
-      !call cycles(x0,lamb0,phi,4)
       call metropolis(x0,dphi,phi)
     end do
     do j=1,Nmsrs2
@@ -87,13 +85,13 @@ contains
           !call cycles(x0,lamb0,phi,4)
           call metropolis(x0,dphi,phi)
         end do
-        call correlation(phi,corr1,corr2,dphi)
+        call correlation(phi,corr1,corr2)
       end do
       corr1(:)=corr1(:)/real(Nmsrs,dp)
       corr2(:,:)=corr2(:,:)/real(Nmsrs,dp)
       !write(*,*) corr2(N/2,1), corr1(1)**2, corr2(N/2,1)-corr1(1)**2
       do i=1,Lt
-        CF(i,j)=corr2(i,1) !-(corr1(1)**2)
+        CF(i,j)=corr2(i,1) -(corr1(1)**2)
       end do
     end do
     do j=1,Lt
@@ -110,6 +108,5 @@ contains
   close(60)
   end subroutine correlate
   
-
 
 end module measurements
