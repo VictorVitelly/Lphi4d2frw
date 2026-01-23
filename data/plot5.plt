@@ -1,15 +1,15 @@
 set terminal qt size 1000,550
-set xlabel 't-1' font ',22' offset 0,-2
-set ylabel 'S(t)' font ',22' offset -6,0 rotate by 0
+set xlabel 't' font ',22' offset 0,-1
+set ylabel 'S' font ',22' offset -6,0 rotate by 0
 set title 'Action' font ',22'
 set xtics font ',18'
 set ytics font ',18'
-set key font ',18'
+set key font ',16'
 set key outside
-set lmargin 20
-set bmargin 6
+set lmargin 18
+set bmargin 5
 set grid x,y
-set xrange [-1:10]
+set xrange [-1:15]
 
 nn=11
 mumax=-3.0

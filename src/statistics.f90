@@ -67,7 +67,7 @@ contains
     AR=0._dp
     do i1=1,Lt
       do i2=1,Lx
-        call random_phi(deltaphi,dphi-0.05_dp*real(i1,dp)/16._dp)
+        call random_phi(deltaphi,dphi-0.08_dp*real(i1,dp)/16._dp)
         phi2=phi(i1,i2)+deltaphi
         !DS=DeltaSdbc(m0,phi,i1,i2,phi2)
         !DS=DeltaSfbc(m0,phi,i1,i2,phi2)

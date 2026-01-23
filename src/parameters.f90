@@ -4,7 +4,7 @@ module parameters
     implicit none
 
     integer(i4), parameter :: Lt=16,Lx=16
-    real(dp), parameter :: PI=4._dp*DATAN(1._dp),tau=10._dp,x=10._dp
+    real(dp), parameter :: PI=4._dp*DATAN(1._dp)
     real(dp) :: lambda0=1._dp,at=1._dp,ax=1._dp
     
     integer(i4), parameter :: thermalization=5000,Nmsrs=100,eachsweep=300,Nmsrs2=120

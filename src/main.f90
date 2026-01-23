@@ -18,10 +18,10 @@ program main
   !call vary_m0(-0.5_dp,-2.5_dp,11)
 
   !call test2(0._dp,-3.0_dp,11)
-  call test2(-0.0_dp,-3.0_dp,11)
+  !call test2(-0.0_dp,-3.0_dp,11)
   !call test3(0._dp,-3._dp,21)
   
-  !call correlate(-2._dp,-1._dp,11)
+  call correlate(0._dp,-3._dp,11)
 
   call cpu_time(ending)
   write(*,*) "Elapsed time: ", (ending-starting), " s"
@@ -268,17 +268,17 @@ subroutine vary_m0(mi,mf,Nps)
     Sphi_err(k2,:)=Sphi_err(k2,:)/real(Lx,dp)
     
     write(10,*) m0,M_ave/real(Lx*Lt,dp),M_err/real(Lx*Lt,dp)
-    write(40,*) m0,E_ave/real(Lx*Lt,dp),E_err/real(Lx*Lt,dp)
-    write(30,*) m0, phi_res(k2,1), phi_err(k2,1), phi_res(k2,4), phi_err(k2,4), &
-                &phi_res(k2,8), phi_err(k2,8), phi_res(k2,12), phi_err(k2,12), &
-                &phi_res(k2,16), phi_err(k2,16), phi_res(k2,20), phi_err(k2,20), &
-                &phi_res(k2,24), phi_err(k2,24), phi_res(k2,28), phi_err(k2,28), &
-                &phi_res(k2,30), phi_err(k2,30), phi_res(k2,32), phi_err(k2,32)
-    write(60,*) m0, Sphi_res(k2,1), Sphi_err(k2,1), Sphi_res(k2,4), Sphi_err(k2,4), &
-                &Sphi_res(k2,8), Sphi_err(k2,8), Sphi_res(k2,12), Sphi_err(k2,12), &
-                &Sphi_res(k2,16), Sphi_err(k2,16), Sphi_res(k2,20), Sphi_err(k2,20), &
-                &Sphi_res(k2,24), Sphi_err(k2,24), Sphi_res(k2,28), Sphi_err(k2,28), &
-                &Sphi_res(k2,30), Sphi_err(k2,30), Sphi_res(k2,32), Sphi_err(k2,32)
+    write(40,*) m0,E_ave/real(Lx*(Lt-1),dp),E_err/real(Lx*(Lt-1),dp)
+    write(30,*) m0, phi_res(k2,1), phi_err(k2,1), phi_res(k2,2), phi_err(k2,2), &
+                &phi_res(k2,4), phi_err(k2,4), phi_res(k2,6), phi_err(k2,6), &
+                &phi_res(k2,8), phi_err(k2,8), phi_res(k2,10), phi_err(k2,10), &
+                &phi_res(k2,12), phi_err(k2,12), phi_res(k2,14), phi_err(k2,14), &
+                &phi_res(k2,15), phi_err(k2,15), phi_res(k2,16), phi_err(k2,16)
+    write(60,*) m0, Sphi_res(k2,1), Sphi_err(k2,1), Sphi_res(k2,2), Sphi_err(k2,2), &
+                &Sphi_res(k2,4), Sphi_err(k2,4), Sphi_res(k2,6), Sphi_err(k2,6), &
+                &Sphi_res(k2,8), Sphi_err(k2,8), Sphi_res(k2,10), Sphi_err(k2,10), &
+                &Sphi_res(k2,12), Sphi_err(k2,12), Sphi_res(k2,14), Sphi_err(k2,14), &
+                &Sphi_res(k2,15), Sphi_err(k2,15), Sphi_res(k2,16), Sphi_err(k2,16)
     write(*,*) 'The acc. rate for m02='
     do i=1,Lt
       write(*,*) i, AR_ave(i), AR_err(i)

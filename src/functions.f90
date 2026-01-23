@@ -31,7 +31,7 @@ contains
     integer(i4),intent(in) :: t
     real(dp) :: alfa
     !alfa=1._dp
-    alfa=exp(0.01_dp*t)
+    alfa=exp(0.05_dp*real(t-1,dp))
     !alfa=sin(at*real(t-1,dp))
   end function alfa
 
@@ -53,7 +53,7 @@ contains
     real(dp) :: S
     integer(i4) :: i1,i2
     S=0._dp
-    do i1=1,Lt
+    do i1=1,Lt-1
       do i2=1,Lx
         S=S+lagrangian(m02,phi,i1,i2)
       end do
@@ -207,7 +207,7 @@ contains
     end do
   end function meanphi_t
   
-    function meandphi_t(phi,t)
+  function meandphi_t(phi,t)
     real(dp), dimension(Lt+1,Lx), intent(in) :: phi
     integer(i4), intent(in) :: t
     real(dp) :: meandphi_t

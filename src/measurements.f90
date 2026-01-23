@@ -52,7 +52,7 @@ contains
   real(dp), intent(in) :: mi,mf
   !subroutine correlate(m0,lambi,lambf,Nts)
   !real(dp), intent(in) :: m0,lambi,lambf
-  real(dp) :: x0,dphi
+  real(dp) :: m0,dphi,AR(Lt)
   integer(i4) :: Nts
   real(dp), allocatable :: phi(:,:),corr1(:),corr2(:,:),CF(:,:),CF_ave(:,:),CF_delta(:,:)
   integer(i4) :: i,j,k,i2
@@ -67,14 +67,14 @@ contains
   !call cold_start(phi)
   do k=1,Nts
     CF(:,:)=0._dp
-    x0=mi+(mf-mi)*real(k-1,dp)/real(Nts-1,dp)
+    m0=mi+(mf-mi)*real(k-1,dp)/real(Nts-1,dp)
     !dphi=0.45_dp +x0/30._dp
-    dphi=0.5_dp
+    dphi=0.5_dp +m0/20._dp
     !x0=lambi+(lambf-lambi)*real(k-1,dp)/real(Nts-1,dp)
-    write(*,*) x0
+    write(*,*) m0
     call cold_start(phi)
     do j=1,2*thermalization
-      call metropolis(x0,dphi,phi)
+      call montecarlo(m0,dphi,phi,AR)
     end do
     do j=1,Nmsrs2
       corr1(:)=0._dp
@@ -83,7 +83,7 @@ contains
         call flip_sign(phi)
         do i2=1,eachsweep
           !call cycles(x0,lamb0,phi,4)
-          call metropolis(x0,dphi,phi)
+          call montecarlo(m0,dphi,phi,AR)
         end do
         call correlation(phi,corr1,corr2)
       end do
@@ -91,7 +91,7 @@ contains
       corr2(:,:)=corr2(:,:)/real(Nmsrs,dp)
       !write(*,*) corr2(N/2,1), corr1(1)**2, corr2(N/2,1)-corr1(1)**2
       do i=1,Lt
-        CF(i,j)=corr2(i,1) -(corr1(1)**2)
+        CF(i,j)=corr2(i,1) !-(corr1(1)**2)
       end do
     end do
     do j=1,Lt
