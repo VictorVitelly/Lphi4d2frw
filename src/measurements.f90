@@ -7,6 +7,26 @@ module measurements
 
 contains
 
+  subroutine thermalize(m0)
+  real(dp), intent(in) :: m0
+  real(dp), allocatable :: phi(:,:)
+  real(dp) :: dphi
+  integer(i4) :: i
+  open(10, file = 'data/history.dat', status = 'replace')
+  allocate(phi(Lt+1,Lx))
+  !call hot_start(phi,hotphi)
+  call cold_start(phi)
+  do i=1,thermalization
+    !50 sweeps for L=8, 500 sweeps for L=64
+    call metropolis(m0,dphi,phi)
+    if( mod(i,250)==0) then
+      write(10,*) i,",", S(m0,phi)/real(Lt*Lx,dp)
+    end if
+  end do
+  close(10)
+  deallocate(phi)
+  end subroutine thermalize
+
   subroutine correlation(phi,corr1,corr2)
     real(dp), dimension(Lt+1,Lx), intent(in) :: phi
     real(dp), dimension(Lt), intent(inout) :: corr1
@@ -47,66 +67,77 @@ contains
       end do
     end do
   end subroutine correlation2
-  
-  subroutine correlate(mi,mf,Nts)
-  real(dp), intent(in) :: mi,mf
-  !subroutine correlate(m0,lambi,lambf,Nts)
-  !real(dp), intent(in) :: m0,lambi,lambf
-  real(dp) :: m0,dphi,AR(Lt)
-  integer(i4) :: Nts
-  real(dp), allocatable :: phi(:,:),corr1(:),corr2(:,:),CF(:,:),CF_ave(:,:),CF_delta(:,:)
-  integer(i4) :: i,j,k,i2
-  open(60, file = 'data/corrfunc.dat', status = 'replace')
-  allocate(phi(Lt+1,Lx))
-  allocate(corr1(Lt))
-  allocate(corr2(Lt,Lt))
-  allocate(CF(Lt,Nmsrs2))
-  allocate(CF_ave(Lt,Nts))
-  allocate(CF_delta(Lt,Nts))
 
-  !call cold_start(phi)
-  do k=1,Nts
-    CF(:,:)=0._dp
-    m0=mi+(mf-mi)*real(k-1,dp)/real(Nts-1,dp)
-    !dphi=0.45_dp +x0/30._dp
-    dphi=0.5_dp +m0/20._dp
-    !x0=lambi+(lambf-lambi)*real(k-1,dp)/real(Nts-1,dp)
-    write(*,*) m0
+  subroutine histogram(x,A1,A2)
+  real(dp), dimension(:,:), intent(in) :: x
+  integer(i4), dimension(bins,Lt), intent(inout) :: A1
+  real(dp), dimension(bins), intent(in) :: A2
+  integer(i4) :: i,j,k
+  do i=1,bins
+    do j=1,Lt
+      do k=1,size(x,dim=2)
+        if(x(j,k) .le. real(A2(i),dp)+binwidth/2._dp .and. x(j,j)>real(A2(i),dp)-binwidth/2._dp ) then
+          A1(i,j)=A1(i,j)+1
+          cycle
+        end if
+      end do
+    end do
+  end do
+  end subroutine histogram
+
+  subroutine make_histogram(m0)
+    real(dp), intent(in) :: m0
+    real(dp) :: dphi,norm(Lt),AR(Lt),ARp(Lt,Nmsrs2),AR_ave(Lt),AR_err(Lt)
+    integer(i4) :: i,j,k
+    real(dp), allocatable :: phi(:,:), A2(:)
+    integer(i4), allocatable :: A1(:,:)
+    open(80, file = 'data/histogram.dat', status = 'replace')
+    allocate(phi(Lt+1,Lx))
+    allocate(A1(bins,Lt))
+    allocate(A2(bins))
     call cold_start(phi)
-    do j=1,2*thermalization
+    ARp=0._dp
+    do i=1,bins
+      A2(i)=minn+binwidth/2._dp+real(i-1,dp)*binwidth
+    end do
+    A1=0
+    dphi=0.5_dp+m0/20._dp
+    do i=1,thermalization
       call montecarlo(m0,dphi,phi,AR)
     end do
-    do j=1,Nmsrs2
-      corr1(:)=0._dp
-      corr2(:,:)=0._dp
-      do i=1,Nmsrs
+
+    do i=1,Nmsrs2
+      do j=1,Nmsrs
         call flip_sign(phi)
-        do i2=1,eachsweep
-          !call cycles(x0,lamb0,phi,4)
+        do k=1,eachsweep
           call montecarlo(m0,dphi,phi,AR)
         end do
-        call correlation(phi,corr1,corr2)
+        ARp(:,i)=ARp(:,i)+AR(:)
+        call histogram(phi,A1,A2)
       end do
-      corr1(:)=corr1(:)/real(Nmsrs,dp)
-      corr2(:,:)=corr2(:,:)/real(Nmsrs,dp)
-      !write(*,*) corr2(N/2,1), corr1(1)**2, corr2(N/2,1)-corr1(1)**2
-      do i=1,Lt
-        CF(i,j)=corr2(i,1) !-(corr1(1)**2)
-      end do
+      ARp(:,i)=ARp(:,i)/real(Nmsrs,dp)
     end do
-    do j=1,Lt
-      call mean_scalar(CF(j,:),CF_ave(j,k),CF_delta(j,k))
-    end do
-  end do
-  
-  do k=1,Lt+1
-    write(60,*) abs(k-1), CF_ave(ivx(k),:), CF_delta(ivx(k),:)
-  end do
 
-  deallocate(corr1,corr2,CF,CF_ave,CF_delta)
-  deallocate(phi)
-  close(60)
-  end subroutine correlate
-  
+    do i=1,Lt
+      call mean_scalar(ARp(i,:),AR_ave(i),AR_err(i))
+      write(*,*) i, AR_ave(i), AR_err(i)
+    end do
+
+    norm(:)=0._dp
+    do i=1,bins
+      norm(:)=norm(:)+A1(i,:)
+    end do
+    norm(:)=norm(:)*(real(maxx-minn,dp) )/real(bins,dp)
+
+    do i=1,bins
+      do j=1,Lt
+        write(80,*) j, A2(i), A1(i,j), sqrt( real(A1(i,j),dp) )
+      end do
+    end do
+    deallocate(A1,A2)
+    close(80)
+  end subroutine make_histogram
+
+
 
 end module measurements

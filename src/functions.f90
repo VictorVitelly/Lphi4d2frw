@@ -31,7 +31,7 @@ contains
     integer(i4),intent(in) :: t
     real(dp) :: alfa
     !alfa=1._dp
-    alfa=exp(0.05_dp*real(t-1,dp))
+    alfa=exp(H0*at*real(t-1,dp))
     !alfa=sin(at*real(t-1,dp))
   end function alfa
 
