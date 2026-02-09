@@ -1,4 +1,4 @@
-set terminal qt size 1000,550
+set terminal qt size 1000,600
 set xlabel 'μ^2' font ',22' offset 0,-1
 set ylabel 'S' font ',22' offset -3,0 rotate by 0
 set title 'Action' font ',20'
@@ -38,5 +38,5 @@ tt[8]=13
 tt[9]=14
 tt[10]=15
 
-plot for [i=1:9] 'm02vssphi.dat' u 1:col1[i]:col2[i] w errorbars title sprintf('t=%.0f',tt[i]) linestyle i, 'action.dat' w errorbars title 'Full lattice' pt 2 lc rgb "black", 'actionstatic.dat' w lines title 'Flat static' lc rgb "black"
+plot for [i=1:9] 'm02vssphi.dat' u 1:col1[i]:col2[i] w errorbars title sprintf('t=%.0f',tt[i]) linestyle i, 'action.dat' w errorbars title 'Full lattice' pt 2 lc rgb "black", 'actionstatic.dat' w lines title 'Static 2d' lc rgb "black", 'actionstatic1d.dat' w lines title 'Static 1d'
 pause -1
