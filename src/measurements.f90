@@ -32,7 +32,6 @@ contains
     real(dp), dimension(Lt), intent(inout) :: corr1
     real(dp), dimension(Lt,Lt), intent(inout) :: corr2
     real(dp), dimension(Lt) :: varphi
-    real(dp) :: xx
     integer(i4) :: i1,i2
     varphi=0._dp
     do i1=1,Lt
@@ -41,29 +40,24 @@ contains
       end do
     end do
     varphi(:)=varphi(:)/real(Lx,dp)
-    xx=abs(meanphi(phi))/real(Lx*Lt,dp)
     do i1=1,Lt
-      corr1(i1)=corr1(i1)+xx
-      do i2=1,Lx
-        corr2(i1,i2)=corr2(i1,i2)+(varphi(i1)*varphi(i2))
-        !corr2(i1,i2)=corr2(i1,i2)+(phi(i1,1)*phi(i2,1))
+      corr1(i1)=corr1(i1)+abs(varphi(i1))
+      do i2=1,Lt
+        corr2(i1,i2)=corr2(i1,i2)+varphi(i1)*varphi(i2)
       end do
     end do
   end subroutine correlation
-  
-  subroutine correlation2(phi,corr1,corr2,t)
+
+  subroutine correlation2(phi,corr1,corr2)
     real(dp), dimension(Lt+1,Lx), intent(in) :: phi
-    integer(i4), intent(in) :: t
-    real(dp), dimension(Lt), intent(inout) :: corr1
-    real(dp), dimension(Lt,Lt), intent(inout) :: corr2
-    real(dp) :: xx
+    real(dp), dimension(Lx), intent(inout) :: corr1
+    real(dp), dimension(Lx,Lx), intent(inout) :: corr2
     integer(i4) :: i1,i2
     !xx=abs(mean(phi))/real(N**2,dp)
-    xx=abs(meanphi_t(phi,t))/real(Lx,dp)
     do i1=1,Lx
-      corr1(i1)=corr1(i1)+xx
+      corr1(i1)=corr1(i1)+phi(16,i1)
       do i2=1,Lx
-        corr2(i1,i2)=corr2(i1,i2)+(phi(t,i1)*phi(t,i2))
+        corr2(i1,i2)=corr2(i1,i2)+(phi(16,i1)*phi(16,i2))
       end do
     end do
   end subroutine correlation2
