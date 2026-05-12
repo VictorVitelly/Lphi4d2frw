@@ -12,7 +12,8 @@ set grid x,y
 set xrange [-1:16]
 
 nn=11
-mumax=-3.0
+mumax=2.0
+#mumax=-3.0
 
 array col1[nn]
 array col2[nn]
@@ -26,5 +27,5 @@ col2[i]=nn+1+i
 m02[i]=mumax*(i-1.)/(nn-1)
 }
 
-plot for [i=1:nn] 'tvsphi.dat' u 1:col1[i]:col2[i] w errorbars title sprintf('μ^2=%.1f',m02[i]) linestyle i
+plot for [i=1:nn] 'tvsphi.dat' u 1:col1[i]:col2[i] w errorbars title sprintf('μ^2=%.1f',m02[i]) linestyle i #, for [i=1:nn] 'tvsphi16.dat' u 1:col1[i]:col2[i] w errorbars title sprintf('μ^2=%.1f',m02[i])
 pause -1

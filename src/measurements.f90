@@ -70,7 +70,7 @@ contains
   do i=1,bins
     do j=1,Lt
       do k=1,size(x,dim=2)
-        if(x(j,k) .le. real(A2(i),dp)+binwidth/2._dp .and. x(j,j)>real(A2(i),dp)-binwidth/2._dp ) then
+        if(x(j,k) .le. real(A2(i),dp)+binwidth/2._dp .and. x(j,k)>real(A2(i),dp)-binwidth/2._dp ) then
           A1(i,j)=A1(i,j)+1
           cycle
         end if
@@ -83,7 +83,7 @@ contains
     real(dp), intent(in) :: m0
     real(dp) :: dphi,norm(Lt),AR(Lt),ARp(Lt,Nmsrs2),AR_ave(Lt),AR_err(Lt)
     integer(i4) :: i,j,k
-    real(dp), allocatable :: phi(:,:), A2(:)
+    real(dp), allocatable :: phi(:,:), A2(:), aux(:,:), aux_err(:,:)
     integer(i4), allocatable :: A1(:,:)
     open(80, file = 'data/histogram.dat', status = 'replace')
     allocate(phi(Lt+1,Lx))
@@ -95,17 +95,20 @@ contains
       A2(i)=minn+binwidth/2._dp+real(i-1,dp)*binwidth
     end do
     A1=0
-    dphi=0.5_dp+m0/20._dp
+    dphi=0.2_dp
     do i=1,thermalization
-      call montecarlo(m0,dphi,phi,AR)
+      !call montecarlo(m0,dphi,phi,AR)
+      call metropolis(m0,dphi,phi)
     end do
 
     do i=1,Nmsrs2
       do j=1,Nmsrs
         call flip_sign(phi)
         do k=1,eachsweep
+          !call metropolis(m0,dphi,phi)
           call montecarlo(m0,dphi,phi,AR)
         end do
+        !call montecarlo(m0,dphi,phi,AR)
         ARp(:,i)=ARp(:,i)+AR(:)
         call histogram(phi,A1,A2)
       end do
@@ -119,15 +122,29 @@ contains
 
     norm(:)=0._dp
     do i=1,bins
-      norm(:)=norm(:)+A1(i,:)
+      norm(:)=norm(:)+real(A1(i,:),dp)
     end do
     norm(:)=norm(:)*(real(maxx-minn,dp) )/real(bins,dp)
 
+    allocate(aux(bins,Lt))
+    allocate(aux_err(bins,Lt))
     do i=1,bins
       do j=1,Lt
-        write(80,*) j, A2(i), A1(i,j), sqrt( real(A1(i,j),dp) )
+      aux(i,j)=A1(i,j)/norm(j)
+      aux_err(i,j)=sqrt( real(A1(i,j),dp) )/norm(j)
       end do
     end do
+    
+    do i=1,bins
+      do j=1,Lt
+        write(80,*) -at*real(j,dp), A2(i), aux(i,j), aux_err(i,j)
+      end do
+    end do
+    
+    !do i=1,bins
+    !  write(80,*) A2(i), aux(i,:), aux_err(i,:)
+    !end do
+    deallocate(aux,aux_err)
     deallocate(A1,A2)
     close(80)
   end subroutine make_histogram

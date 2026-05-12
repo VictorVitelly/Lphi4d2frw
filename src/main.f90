@@ -16,10 +16,10 @@ program main
 
   !Measure action, magnetization, susceptibility and heat cap.
   !call vary_m0(0._dp,-3.0_dp,11)
-  !call vary_m0(-0.0_dp,-3.0_dp,11)
-  !call vary_m0(0._dp,-3._dp,21)
+  !call vary_m0(0.0_dp,-3.0_dp,11)
+  !call vary_m0(0._dp,1.5_dp,11)
 
-  call make_histogram(-0.128_dp)
+  call make_histogram(-1.4_dp)
 
   call cpu_time(ending)
   write(*,*) "Elapsed time: ", (ending-starting), " s"

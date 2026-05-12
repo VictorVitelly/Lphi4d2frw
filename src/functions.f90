@@ -30,10 +30,13 @@ contains
   function alfa(t)
     integer(i4),intent(in) :: t
     real(dp) :: alfa
+    real(dp) :: x1,x2
     !alfa=1._dp
-    alfa=exp(H0*at*real(t-1,dp))
-    !alfa=sin(at*real(t-1,dp))
-  end function alfa
+    !alfa=-1._dp/(H0*at*real(t,dp))
+    x1=(1._dp/alfaf-1._dp/alfai)/real(Lt-1,dp)
+    x2=1._dp/alfai -x1
+    alfa=-1._dp/(H0*(x1*real(t,dp)+x2 ))
+    end function alfa
 
   function lagrangian(m02,phi,i1,i2)
     real(dp), intent(in) :: m02
@@ -41,8 +44,8 @@ contains
     integer(i4), intent(in) :: i1,i2
     real(dp) :: lagrangian
     real(dp) :: laga,lagb,lagc
-    laga=(phi(i1+1,i2)-phi(i1,i2) )**2 /at**2
-    lagb=(phi(i1,ivx(i2+1))-phi(i1,i2) )**2 /ax**2
+    laga=(phi(i1+1,i2)-phi(i1,i2) )**2 /(at**2)
+    lagb=(phi(i1,ivx(i2+1))-phi(i1,i2) )**2 /(ax**2)
     lagc=alfa(i1)**2 *(m02*phi(i1,i2)**2+0.5_dp*lambda0*phi(i1,i2)**4)
     lagrangian=(laga+lagb+lagc)/2._dp
   end function lagrangian
@@ -68,7 +71,7 @@ contains
     real(dp), intent(in) :: phi2
     real(dp) :: DeltaSdbc
     real(dp) :: DSa,DSb,DSc,DSd
-      DSa=(phi2**2-phi(i1,i2)**2)*(1._dp/at**2+1._dp/ax**2)
+      DSa=(phi2**2-phi(i1,i2)**2)*(1._dp/(at**2) +1._dp/(ax**2))
       DSb=-(phi2-phi(i1,i2))*(phi(ivt(i1+1),i2) +phi(ivt(i1-1),i2))/at**2 
       DSc=-(phi2-phi(i1,i2))*(phi(i1,ivx(i2+1)) +phi(i1,ivx(i2-1)))/ax**2
       DSd=alfa(i1)**2 *(m02*(phi2**2-phi(i1,i2)**2)&

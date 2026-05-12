@@ -1,15 +1,14 @@
-set terminal qt size 1000,600
-set xlabel 'μ^2' font ',22' offset 0,-1
-set ylabel 'Φ_t' font ',22' offset -3,0 rotate by 0
-set title 'Condensate' font ',20'
+#set terminal qt size 1000,600
+set xlabel 'm^2' font ',22' offset 0,-2
+set ylabel 'Φ_t' font ',22' offset -5,0 rotate by 0
+#set title 'Condensate' font ',20'
 set xtics font ',18'
 set ytics font ',18'
 set key font ',16'
 set grid x,y
 #set key outside
 set lmargin 18
-set bmargin 5
-set key outside
+set bmargin 6
 set xrange [-3.25:0.25]
 
 nn=11
@@ -37,5 +36,10 @@ tt[8]=13
 tt[9]=14
 tt[10]=15
 
-plot for [i=1:nn] 'm02vsphi.dat' u 1:col1[i]:col2[i] w errorbars title sprintf('t=%.0f',tt[i]) linestyle i, 'magnet.dat' w errorbars title 'Full lattice' pt 2 lc rgb "black", 'magnetstatic.dat' w lines title 'Static 2d' lc rgb "black", 'magnetstatic1d.dat' w lines title 'Static 1d'
+
+plot for [i=1:nn] 'm02vsphi.dat' u 1:col1[i]:col2[i] w errorbars title sprintf('t=%.0f',tt[i]) linestyle i, 'magnet.dat' w errorbars title 'Full lattice' pt 2 lc rgb "black", 'magnetstatic.dat' w lines title 'PBC' lc rgb "black"#, 'magnetstatic1d.dat' w lines title 'Static 1d'
+
+
+
 pause -1
+
