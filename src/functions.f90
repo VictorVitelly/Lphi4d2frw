@@ -1,6 +1,7 @@
 module functions
     use iso_fortran_env, only : dp => real64, i4 => int32
     use parameters
+    use arrays
     implicit none
 
 contains
@@ -26,17 +27,6 @@ contains
       ivt=i
     end if
   end function ivt
-  
-  function alfa(t)
-    integer(i4),intent(in) :: t
-    real(dp) :: alfa
-    real(dp) :: x1,x2
-    !alfa=1._dp
-    !alfa=-1._dp/(H0*at*real(t,dp))
-    x1=(1._dp/alfaf-1._dp/alfai)/real(Lt-1,dp)
-    x2=1._dp/alfai -x1
-    alfa=-1._dp/(H0*(x1*real(t,dp)+x2 ))
-    end function alfa
 
   function lagrangian(m02,phi,i1,i2)
     real(dp), intent(in) :: m02
@@ -45,7 +35,7 @@ contains
     real(dp) :: lagrangian
     real(dp) :: laga,lagb,lagc
     laga=(phi(i1+1,i2)-phi(i1,i2) )**2 /(at**2)
-    lagb=(phi(i1,ivx(i2+1))-phi(i1,i2) )**2 /(ax**2)
+    lagb=(phi(i1,ipx(i2))-phi(i1,i2) )**2 /(ax**2)
     lagc=alfa(i1)**2 *(m02*phi(i1,i2)**2+0.5_dp*lambda0*phi(i1,i2)**4)
     lagrangian=(laga+lagb+lagc)/2._dp
   end function lagrangian
@@ -109,6 +99,37 @@ contains
       DeltaSgbc=at*ax*(DSa+DSb+DSc+DSd)
     end if
   end function DeltaSgbc
+  
+  function DeltaSgbc2(m02,phi,i1,i2,phi2)
+    real(dp), intent(in) :: m02
+    real(dp), dimension(Lt+1,Lx), intent(in) :: phi
+    integer(i4), intent(in) :: i1,i2
+    real(dp), intent(in) :: phi2
+    real(dp) :: DeltaSgbc2
+    real(dp) :: DSa,DSb,DSc,DSd
+    If(i1==Lt) then 
+      DSa=(phi2**2-phi(i1,i2)**2)*(1.0_dp/at**2+1._dp/ax**2)
+      DSb=-2._dp*(phi2-phi(i1,i2))*(phi(i1-1,i2))/at**2 
+      DSc=-(phi2-phi(i1,i2))*(phi(i1,ipx(i2)) +phi(i1,imx(i2)))/ax**2
+      DSd=alfa(i1)**2 *(m02*(phi2**2-phi(i1,i2)**2)&
+          &+lambda0*(phi2**4-phi(i1,i2)**4)/2._dp)/2._dp
+      DeltaSgbc2=at*ax*(DSa+DSb+DSc+DSd)
+    else if (i1==1) then 
+      DSa=(phi2**2-phi(i1,i2)**2)*(1.0_dp/at**2+1._dp/ax**2)
+      DSb=-2._dp*(phi2-phi(i1,i2))*(phi(i1+1,i2) )/at**2 
+      DSc=-(phi2-phi(i1,i2))*(phi(i1,ipx(i2)) +phi(i1,imx(i2)))/ax**2
+      DSd=alfa(i1)**2 *(m02*(phi2**2-phi(i1,i2)**2)&
+          &+lambda0*(phi2**4-phi(i1,i2)**4)/2._dp)/2._dp
+      DeltaSgbc2=at*ax*(DSa+DSb+DSc+DSd)
+    else 
+      DSa=(phi2**2-phi(i1,i2)**2)*(1._dp/at**2+1._dp/ax**2)
+      DSb=-(phi2-phi(i1,i2))*(phi(i1+1,i2) +phi(i1-1,i2))/at**2 
+      DSc=-(phi2-phi(i1,i2))*(phi(i1,ipx(i2)) +phi(i1,imx(i2)))/ax**2
+      DSd=alfa(i1)**2 *(m02*(phi2**2-phi(i1,i2)**2)&
+          &+lambda0*(phi2**4-phi(i1,i2)**4)/2._dp)/2._dp
+      DeltaSgbc2=at*ax*(DSa+DSb+DSc+DSd)
+    end if
+  end function DeltaSgbc2
   
   function DeltaSfbc(m02,phi,i1,i2,phi2)
     real(dp), intent(in) :: m02

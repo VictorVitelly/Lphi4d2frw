@@ -5,7 +5,7 @@ TARGET=main
 
 #NO espacios alrededor del =, para asignar valor a variables en shell
 FC=gfortran
-FFLAGS="-c -J$BIN -I$BIN -Wall -Wextra -std=f2008"
+FFLAGS="-c -J$BIN -I$BIN -Wall -Wextra -std=f2008 -fcheck=bounds"
 
 for file in parameters arrays functions statistics measurements main
 do

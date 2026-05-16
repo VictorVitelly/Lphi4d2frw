@@ -38,11 +38,11 @@ contains
     integer(i4) :: i1,i2
     do i1=1,Lt
       do i2=1,Lx
-        call random_phi(deltaphi,dphi+0.19_dp*real(i1-1,dp)/real(Lt-1,dp))
+        call random_phi(deltaphi,dphi+0.45_dp*real(i1-1,dp)/real(Lt-1,dp))
         phi2=phi(i1,i2)+deltaphi
         !DS=DeltaSdbc(m0,phi,i1,i2,phi2)
         !DS=DeltaSfbc(m0,phi,i1,i2,phi2)
-        DS=DeltaSgbc(m0,phi,i1,i2,phi2)
+        DS=DeltaSgbc2(m0,phi,i1,i2,phi2)
         !DS=DeltaSrbc(m0,phi,i1,i2,phi2)
         !DS=DeltaSpbc(m0,phi,i1,i2,phi2)
         if(DS .le. 0._dp) then
@@ -67,11 +67,11 @@ contains
     AR=0._dp
     do i1=1,Lt
       do i2=1,Lx
-        call random_phi(deltaphi,dphi+0.19_dp*real(i1-1,dp)/real(Lt-1,dp))
+        call random_phi(deltaphi,dphi+0.45_dp*real(i1-1,dp)/real(Lt-1,dp))
         phi2=phi(i1,i2)+deltaphi
         !DS=DeltaSdbc(m0,phi,i1,i2,phi2)
         !DS=DeltaSfbc(m0,phi,i1,i2,phi2)
-        DS=DeltaSgbc(m0,phi,i1,i2,phi2)
+        DS=DeltaSgbc2(m0,phi,i1,i2,phi2)
         !DS=DeltaSrbc(m0,phi,i1,i2,phi2)
         !DS=DeltaSpbc(m0,phi,i1,i2,phi2)
         if(DS .le. 0._dp) then
